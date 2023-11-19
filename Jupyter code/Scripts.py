@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[148]:
+# In[1]:
 
 
 import os
 from PIL import Image
 
 
-# In[149]:
+# In[2]:
 
 
 def get_train_file_path(foldername):
     return f"train/{foldername}"
 
 
-# In[150]:
+# In[3]:
 
 
 def validate_file(folder_path):
@@ -28,7 +28,7 @@ def validate_file(folder_path):
     print(f"{image_count}")     
 
 
-# In[151]:
+# In[4]:
 
 
 validate_file(get_train_file_path("angry"))
@@ -37,7 +37,7 @@ validate_file(get_train_file_path("focused"))
 validate_file(get_train_file_path("neutral"))
 
 
-# In[152]:
+# In[5]:
 
 
 def check_imagesize(folder_path):
@@ -54,7 +54,7 @@ def check_imagesize(folder_path):
     return valid
 
 
-# In[153]:
+# In[6]:
 
 
 check_imagesize(get_train_file_path("angry"))
@@ -63,14 +63,14 @@ check_imagesize(get_train_file_path("focused"))
 check_imagesize(get_train_file_path("neutral"))
 
 
-# In[154]:
+# In[7]:
 
 
 def get_test_file_path(folder_path):
     return f"test/{folder_path}"
 
 
-# In[155]:
+# In[8]:
 
 
 validate_file(get_test_file_path("angry"))
@@ -91,7 +91,7 @@ validate_file(get_test_file_path("neutral"))
 
 
 
-# In[156]:
+# In[9]:
 
 
 import os
@@ -132,7 +132,7 @@ def visualize_sample_images_and_pixel_intensity(folder_path, num_samples=5):
 visualize_sample_images_and_pixel_intensity("train/bored")
 
 
-# In[158]:
+# In[10]:
 
 
 import os
@@ -181,7 +181,7 @@ display_random_images_from_class_folder("train/bored", 25, (128, 128))
 
 
 
-# In[159]:
+# In[11]:
 
 
 import os
@@ -203,7 +203,7 @@ def visualize_class_distribution(data_folder):
     plt.show()
 
 
-# In[160]:
+# In[12]:
 
 
 visualize_class_distribution("train")
@@ -233,7 +233,7 @@ visualize_class_distribution("train")
 
 
 
-# In[162]:
+# In[13]:
 
 
 from sklearn.model_selection import train_test_split
@@ -252,7 +252,7 @@ def get_datasets(dataset):
 
 
 
-# In[163]:
+# In[16]:
 
 
 import os
@@ -272,7 +272,7 @@ focused_train_data, focused_test_data, focused_val_data = get_datasets(focused_f
 neutral_train_data, neutral_test_data, neutral_val_data = get_datasets(neutral_file)
 
 
-# In[164]:
+# In[17]:
 
 
 from PIL import Image
@@ -351,7 +351,7 @@ custom_validation_loader=DataLoader(combined_val_data,batch_size=batch_size,shuf
 print(len(bored_val))
 
 
-# In[165]:
+# In[18]:
 
 
 from collections import defaultdict
@@ -370,7 +370,7 @@ for dataset, name in zip(datasets, dataset_names):
         print(f"Label {label}: {count} samples")
 
 
-# In[166]:
+# In[19]:
 
 
 # Assuming custom_training_loader is an instance of DataLoader
@@ -384,7 +384,7 @@ for batch in custom_training_loader:
     break  # To inspect just the first batc
 
 
-# In[167]:
+# In[13]:
 
 
 import torch
@@ -411,7 +411,7 @@ custom_validation_loader = DataLoader(custom_validation_set, batch_size=batch_si
     
 
 
-# In[168]:
+# In[14]:
 
 
 def get_confusion_matrix(model):
@@ -436,7 +436,40 @@ def get_confusion_matrix(model):
     print(cm)
 
 
-# In[169]:
+# In[29]:
+
+
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay,  classification_report
+def get_confusion_matrix(model):
+    model.eval()  # Set the model to evaluation mode
+    all_labels = []
+    all_predictions = []
+    with torch.no_grad():
+        for images, labels in custom_testing_loader:
+            outputs = model(images)
+            _, predicted = torch.max(outputs, 1)
+            all_labels.extend(labels.numpy())
+            all_predictions.extend(predicted.numpy())
+
+    # Generate confusion matrix
+    cm = confusion_matrix(all_labels, all_predictions)
+
+    # Display or print the confusion matrix
+    # print("Confusion Matrix:")
+   
+    class_labels = ['angry', 'bored', 'focused', 'neutral']
+    print("Confusion Matrix:")
+    print("\t\t" + "\t".join(class_labels))
+    for i, row in enumerate(cm):
+        print(f"{class_labels[i]}\t" + "\t\t".join(map(str, row)))
+
+    
+    if class_labels:
+        print("\nClassification Report:")
+        print(classification_report(all_labels, all_predictions, target_names=class_labels))
+
+
+# In[21]:
 
 
 import torch
@@ -477,7 +510,7 @@ def evaluate_model(model):
     return accuracy, precision, recall, f1
 
 
-# In[170]:
+# In[34]:
 
 
 class ImprovedCNN(nn.Module):
@@ -504,7 +537,7 @@ class ImprovedCNN(nn.Module):
         return x
 
 
-# In[5]:
+# In[33]:
 
 
 import torch
@@ -530,7 +563,7 @@ class SimpleCNN(nn.Module):
 
 
 
-# In[6]:
+# In[24]:
 
 
 class SuperSimpleCNN(nn.Module):
@@ -575,7 +608,7 @@ class SuperSimpleCNN(nn.Module):
 
 
 
-# In[173]:
+# In[25]:
 
 
 import torch
@@ -589,9 +622,10 @@ np.random.seed(seed)
 random.seed(seed)
 
 
-# In[174]:
+# In[26]:
 
 
+import torch.optim as optim
 def train_model(Model,num_epochs):
     
     model = Model
@@ -662,33 +696,33 @@ get_confusion_matrix(model=SimpleCNN_model)
 evaluate_model(SimpleCNN_model)
 
 
-# In[142]:
+# In[27]:
 
 
 SuperSimpleCNN_model=SuperSimpleCNN()
 train_model(SuperSimpleCNN_model,num_epochs=45)
 
 
-# In[143]:
+# In[30]:
 
 
 get_confusion_matrix(model=SuperSimpleCNN_model)
 
 
-# In[144]:
+# In[31]:
 
 
 evaluate_model(SuperSimpleCNN_model)
 
 
-# In[145]:
+# In[35]:
 
 
 ImprovedCNN_model=ImprovedCNN()
 train_model(ImprovedCNN_model,num_epochs=58)
 
 
-# In[146]:
+# In[36]:
 
 
 get_confusion_matrix(model=ImprovedCNN_model)
@@ -728,19 +762,10 @@ def load_model_and_predict(model_name, image_path):
     print(predictions.numpy())
 
 
-# In[7]:
+# In[ ]:
 
 
-if __name__ == "__main__":
-    import argparse
 
-    parser = argparse.ArgumentParser(description="Load and run a saved PyTorch model on an image.")
-    parser.add_argument("model_name", type=str, choices=["SuperSimpleCNN"],
-                        help="Name of the model to use")
-    parser.add_argument("image_path", type=str, help="Path to the input image")
-
-    args = parser.parse_args()
-    load_model_and_predict(args.model_name, args.image_path)
 
 
 # In[70]:
